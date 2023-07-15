@@ -26,7 +26,7 @@ int ipParser(char* input){//in put is expected to be 15 bytes
 	ip2[3]=0;
 	ip3[3]=0;
 
-	return (atoi(ip0))+(atoi(ip1)<<8)+(atoi(ip2)<<16)+(atoi(ip3)<<24);
+	return (atoi(ip0))|(atoi(ip1)<<8)|(atoi(ip2)<<16)|(atoi(ip3)<<24);
 }
 
 char* getFile_FD(char*,int*);
