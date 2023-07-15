@@ -8,6 +8,7 @@ after connection client will ask you to enter a number (0 or 1).
 0 means client will send a file. 1 means client will receive a file.
 Both will lead to client waiting for a filename.
 According to the choice made you will receive or send the entered file. (file names cannot exceed 20 characters)
+Received or sent files will be written/read from the directory the program is run.
 Only one file can be sent or received from/to server. After the transaction both server and client will close.
 
 Supported systems:
