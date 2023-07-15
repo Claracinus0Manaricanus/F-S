@@ -73,7 +73,8 @@ int main(){
 		recv(cfd,&fileSize,4,0);//filesize
 		printf("filesize: %ubytes\n",fileSize);
 		file=malloc(fileSize);
-		packets=fileSize+1024;packets++;
+		packets=fileSize/1024;packets++;
+		printf("packets: %i",packets);
 		for(int i=0;i<packets;i++){
 			recv(cfd,&file[i*1024],1024,0);//file
 		}
@@ -88,6 +89,7 @@ int main(){
 		file=getFile_FD(filename,&fileSize);
 		send(cfd,&fileSize,4,0);
 		packets=fileSize/1024;packets++;
+		printf("packets: %i",packets);
 		for(int i=0;i<packets;i++){
 			send(cfd,&file[i*1024],1024,0);
 		}

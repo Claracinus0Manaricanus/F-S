@@ -107,6 +107,7 @@ int main(){
 		file=getFile_FD(filename,&fileSize);
 		send(sfd,&fileSize,4,0);
 		packets=fileSize/1024;packets++;
+		printf("packets: %i",packets);
 		for(int i=0;i<packets;i++){
 			send(sfd,&file[i*1024],1024,0);
 		}
@@ -118,12 +119,10 @@ int main(){
 		recv(sfd,&fileSize,4,0);//filesize
 		printf("filesize: %ubytes\n",fileSize);
 		file=malloc(fileSize);
-		packets=fileSize+1024;packets++;
+		packets=fileSize/1024;packets++;
+		printf("packets: %i",packets);
 		for(int i=0;i<packets;i++){
 			recv(sfd,&file[i*1024],1024,0);//file
-		}
-		for(int i=0;i<fileSize;i++){
-			printf("%u,",file[i]);
 		}
 		writeFile_FD(filename,fileSize,file);
 	}
