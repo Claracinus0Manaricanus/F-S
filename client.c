@@ -96,16 +96,20 @@ int main(){
 	char* filename=malloc(20);
 	char* file=NULL;
 	uint32_t fileSize=0;
+	int packets=0;
 
 
 	//acting upon request
 	if(choice==0){//send a file
-		printf("sending file.\n");
-		printf("filename: ");scanf("%s",filename);
+		printf("file requested.\n");
+		recv(sfd,filename,20,0);
+		printf("sending %s\n",filename);
 		file=getFile_FD(filename,&fileSize);
-		send(sfd,filename,20,0);
 		send(sfd,&fileSize,4,0);
-		send(sfd,file,fileSize,0);
+		packets=fileSize/1024;packets++;
+		for(int i=0;i<packets;i++){
+			send(sfd,&file[i*1024],1024,0);
+		}
 	}else if(choice==1){//receive a file
 		printf("receiving file.\n");
 		//from server
@@ -114,8 +118,13 @@ int main(){
 		recv(sfd,&fileSize,4,0);//filesize
 		printf("filesize: %ubytes\n",fileSize);
 		file=malloc(fileSize);
-		recv(sfd,file,fileSize,0);//file
-		//disk output
+		packets=fileSize+1024;packets++;
+		for(int i=0;i<packets;i++){
+			recv(sfd,&file[i*1024],1024,0);//file
+		}
+		for(int i=0;i<fileSize;i++){
+			printf("%u,",file[i]);
+		}
 		writeFile_FD(filename,fileSize,file);
 	}
 
@@ -136,7 +145,6 @@ char* getFile_FD(char* filename, int* size){//get a file from disk
 	if(reader==NULL)return NULL;
 
 	fseek(reader,0,SEEK_END);
-	(*size)=ftell(reader);
 	rewind(reader);
 
 	char* file=malloc((*size));
