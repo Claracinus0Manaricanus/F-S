@@ -30,7 +30,7 @@ int ipParser(char* input){//in put is expected to be 15 bytes
 }
 
 char* getFile_FD(char*,int*);
-int writeFile_FD(char*, char*);
+int writeFile_FD(char*, uint32_t, char*);
 
 int main(){
 	//variables to use
@@ -116,7 +116,7 @@ int main(){
 		file=malloc(fileSize);
 		recv(sfd,file,fileSize,0);//file
 		//disk output
-		writeFile_FD(filename,file);
+		writeFile_FD(filename,fileSize,file);
 	}
 
 
@@ -139,21 +139,22 @@ char* getFile_FD(char* filename, int* size){//get a file from disk
 	(*size)=ftell(reader);
 	rewind(reader);
 
-	char* file=malloc((*size)+1);
+	char* file=malloc((*size));
 	for(int i=0;i<(*size);i++){
 		file[i]=fgetc(reader);
-	}file[(*size)]=0;
-	(*size)++;
+	}
 
 	fclose(reader);
 	return file;
 }
 
 
-int writeFile_FD(char* filename, char* fileData){
+int writeFile_FD(char* filename, uint32_t size, char* fileData){
 	FILE* writer=fopen(filename,"w");
 	if(writer==NULL)return 1;
-	fputs(fileData,writer);
+	for(int i=0;i<size;i++){
+		fputc(fileData[i],writer);
+	}
 
 	fclose(writer);
 	return 0;
