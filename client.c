@@ -102,7 +102,8 @@ int main(){
 	//acting upon request
 	if(choice==0){//send a file
 		printf("file requested.\n");
-		recv(sfd,filename,20,0);
+		printf("filename: ");scanf("%s",filename);
+		send(sfd,filename,20,0);
 		printf("sending %s\n",filename);
 		file=getFile_FD(filename,&fileSize);
 		send(sfd,&fileSize,4,0);
@@ -144,6 +145,7 @@ char* getFile_FD(char* filename, int* size){//get a file from disk
 	if(reader==NULL)return NULL;
 
 	fseek(reader,0,SEEK_END);
+	(*size)=ftell(reader);
 	rewind(reader);
 
 	char* file=malloc((*size));

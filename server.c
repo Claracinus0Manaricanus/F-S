@@ -68,8 +68,7 @@ int main(){
 	if((*cptr)==0){//receive a file
 		printf("receiving file.\n");
 		//from server
-		printf("filename: ");scanf("%s",filename);
-		send(cfd,filename,20,0);
+		recv(cfd,filename,20,0);
 		recv(cfd,&fileSize,4,0);//filesize
 		printf("filesize: %ubytes\n",fileSize);
 		file=malloc(fileSize);
@@ -77,9 +76,6 @@ int main(){
 		printf("packets: %i",packets);
 		for(int i=0;i<packets;i++){
 			recv(cfd,&file[i*1024],1024,0);//file
-		}
-		for(int i=0;i<fileSize;i++){
-			printf("%u,",file[i]);
 		}
 		writeFile_FD(filename,fileSize,file);
 	}else if((*cptr)==1){//send a file
