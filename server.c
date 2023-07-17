@@ -7,8 +7,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define PACKET_SIZE 1024
+
 char* getFile_FD(char*, int*);
 int writeFile_FD(char*, uint32_t, char*);
+int receiveFile(int,char*,uint32_t*,char**);
+int sendFile(int,char*,uint32_t*,char**);
 
 int main(){
 	//socket creation
@@ -24,7 +28,8 @@ int main(){
 
 
 	//binding
-	uint16_t port=34576;
+	uint16_t port=0;
+	printf("port: ");scanf("%u",&port);
 
 	struct sockaddr_in addr;
 	addr.sin_family=AF_INET;
@@ -53,8 +58,8 @@ int main(){
 
 
 	//getting clients request
-	char* cptr=malloc(1);
-	recv(cfd,cptr,1,0);
+	char choice=0;
+	recv(cfd,&choice,1,0);
 
 
 	//variable
@@ -65,35 +70,15 @@ int main(){
 
 
 	//deciding upon request
-	if((*cptr)==0){//receive a file
-		printf("receiving file.\n");
-		//from server
-		recv(cfd,filename,20,0);
-		recv(cfd,&fileSize,4,0);//filesize
-		printf("filesize: %ubytes\n",fileSize);
-		file=malloc(fileSize);
-		packets=fileSize/1024;packets++;
-		printf("packets: %i",packets);
-		for(int i=0;i<packets;i++){
-			recv(cfd,&file[i*1024],1024,0);//file
-		}
+	if(choice==0){//receive a file
+		receiveFile(cfd,filename,&fileSize,&file);
 		writeFile_FD(filename,fileSize,file);
-	}else if((*cptr)==1){//send a file
-		printf("file requested.\n");
-		recv(cfd,filename,20,0);
-		printf("sending %s\n",filename);
-		file=getFile_FD(filename,&fileSize);
-		send(cfd,&fileSize,4,0);
-		packets=fileSize/1024;packets++;
-		printf("packets: %i",packets);
-		for(int i=0;i<packets;i++){
-			send(cfd,&file[i*1024],1024,0);
-		}
+	}else if(choice==1){//send a file
+		sendFile(cfd,filename,&fileSize,&file);
 	}
 
 
 	//termination
-	free(cptr);
 	printf("\n");
 	close(cfd);
 	close(sfd);
@@ -126,5 +111,39 @@ int writeFile_FD(char* filename, uint32_t size, char* fileData){
 	}
 
 	fclose(writer);
+	return 0;
+}
+
+
+int receiveFile(int sfd,char* filename,uint32_t* size,char** file){
+	recv(sfd,filename,20,0);
+	//receive file size in bytes
+	printf("receiving file.\n");
+	recv(sfd,size,4,0);//filesize
+	printf("filesize: %ubytes\n",(*size));
+	(*file)=malloc((*size));//allocate memory for the file
+	//receive in 1024 byte packets
+	uint32_t packets=(*size)/PACKET_SIZE;packets++;
+	printf("packets: %u",packets);
+	for(int i=0;i<packets;i++){
+		recv(sfd,&(*file)[i*PACKET_SIZE],PACKET_SIZE,0);//file
+	}
+
+	return 0;
+}
+
+
+int sendFile(int sfd,char* filename,uint32_t* size,char** fileData){
+	printf("file requested.\n");
+	recv(sfd,filename,20,0);
+	printf("sending %s\n",filename);
+	(*fileData)=getFile_FD(filename,size);
+	send(sfd,size,4,0);
+	uint32_t packets=(*size)/1024;packets++;
+	printf("packets: %u",packets);
+	for(int i=0;i<packets;i++){
+		send(sfd,&(*fileData)[i*1024],1024,0);
+	}
+
 	return 0;
 }
