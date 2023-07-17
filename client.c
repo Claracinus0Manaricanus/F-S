@@ -92,7 +92,6 @@ int main(){
 
 
 	//variable
-	char* cptr=malloc(1);
 	char* filename=malloc(20);
 	char* file=NULL;
 	uint32_t fileSize=0;
@@ -131,7 +130,6 @@ int main(){
 
 	//termination
 	free(ipToUse);
-	free(cptr);
 	free(filename);
 	free(file);
 	printf("\n");
