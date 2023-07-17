@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define PACKET_SIZE 1024
+#define PACKET_SIZE 8
 
 //optimize
 int ipParser(char* input){//in put is expected to be 15 bytes
@@ -177,10 +177,10 @@ int sendFile(int sfd,char* filename,uint32_t* size,char** fileData){
 	printf("sending %s\n",filename);
 	(*fileData)=getFile_FD(filename,size);
 	send(sfd,size,4,0);
-	uint32_t packets=(*size)/1024;packets++;
+	uint32_t packets=(*size)/PACKET_SIZE;packets++;
 	printf("packets: %u",packets);
 	for(int i=0;i<packets;i++){
-		send(sfd,&(*fileData)[i*1024],1024,0);
+		send(sfd,&(*fileData)[i*PACKET_SIZE],PACKET_SIZE,0);
 	}
 
 	return 0;
